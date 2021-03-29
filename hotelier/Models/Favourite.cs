@@ -3,16 +3,10 @@ using System.ComponentModel.DataAnnotations;
 namespace hotelier.Models {
 
     public class Favourite {
-
-        [Key]
-        [Required]
         public int Id {get; set;}
-
-        [Required]
         public int HotelId {get; set;}
-
-         [Required]
-         public int UserId {get; set;}
-         
+        public int UserId {get; set;}
+        public User User { get; set; }
+        public Hotel Hotel { get; set; }
     }
 }

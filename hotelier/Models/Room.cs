@@ -1,28 +1,19 @@
-
-
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace hotelier.Models {
 
     public class Room {
-
-        [Key]
-        [Required]
         public int Id {get; set;}
 
-        [Key]
-        [Required]
         public int HotelId {get; set;}
-
-        [Required]
         public int capacity {get; set;}
-
-        [Required]
         public string description {get; set;}
-
-        [Required]
         public string type {get; set;}
-
+        public Hotel Hotel { get; set; }
+        public RoomAmenity Amenities { get; set; }
+        public ICollection<RoomImage>  Images { get; set; }   
+        public ICollection<Booking>  Bookings { get; set; }
     }
 }
 
