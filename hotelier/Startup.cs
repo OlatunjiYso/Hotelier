@@ -11,6 +11,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using hotelier.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace hotelier
 {
@@ -28,6 +30,8 @@ namespace hotelier
         {
 
             services.AddControllers();
+            services.AddDbContext<HotelierContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddDatabaseDeveloperPageExceptionFilter();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "hotelier", Version = "v1" });

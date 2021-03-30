@@ -4,8 +4,8 @@ namespace hotelier.Models {
 
     public class Address {
         public int Id { get; set; }
-        public int hotelId { get; set; }
-        public string location { get; set; }
+        public int HotelId { get; set; }
+        public string Location { get; set; }
         public Hotel Hotel { get; set; }
     }
 }
