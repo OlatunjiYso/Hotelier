@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using hotelier.Data;
 using hotelier.Models;
+using hotelier.Services;
 
 namespace hotelier.Controllers
 {
@@ -15,14 +16,36 @@ namespace hotelier.Controllers
     public class UserController : ControllerBase
     {
         private readonly HotelierContext _context;
+        private IUserService _userService;
 
-        public UserController(HotelierContext context)
+        public UserController(HotelierContext context, IUserService userService)
         {
             _context = context;
+            _userService = userService;
+        }
+
+
+        [HttpPost("authenticate")]
+        public IActionResult Authenticate([FromBody] AuthenticateRequest model)
+        {
+            var response = _userService.Authenticate(model);
+
+            if (response == null)
+                return BadRequest(new { message = "Username or password is incorrect" });
+
+            return Ok(response);
+        }
+
+        [Authorize]
+        [HttpGet]
+        public IActionResult GetAll()
+        {
+            var users = _userService.GetAll();
+            return Ok(users);
         }
 
         // GET: api/User
-        [HttpGet]
+        [HttpGet("nonauth")]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
             return await _context.Users.ToListAsync();
@@ -76,7 +99,7 @@ namespace hotelier.Controllers
         // POST: api/User
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<User>> PostUser(User user)
+        public async Task<ActionResult<User>> PostUser([FromBody] User user)
         {
             _context.Users.Add(user);
             await _context.SaveChangesAsync();

@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace hotelier.Models {
     public class User {
@@ -9,6 +10,8 @@ namespace hotelier.Models {
         public string Firstname {get; set;}
         public string Lastname {get; set;}
         public string Email {get; set;}
+
+        [JsonIgnore]
         public string Password { get; set;}
         public string Role {get; set;}
 
