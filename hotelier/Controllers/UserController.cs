@@ -8,23 +8,31 @@ using Microsoft.EntityFrameworkCore;
 using hotelier.Data;
 using hotelier.Models;
 using hotelier.Services;
+using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
+using hotelier.Helpers;
+using hotelier.DTOs;
 
 namespace hotelier.Controllers
 {
-    [Route("api/[controller]")]
+    [Authorize]
     [ApiController]
+    [Route("api/[controller]")]
     public class UserController : ControllerBase
     {
         private readonly HotelierContext _context;
         private IUserService _userService;
+        private IMapper _mapper;
 
-        public UserController(HotelierContext context, IUserService userService)
+        public UserController(HotelierContext context, IUserService userService, IMapper mapper)
         {
             _context = context;
             _userService = userService;
+            _mapper = mapper;
         }
 
 
+        [AllowAnonymous]
         [HttpPost("authenticate")]
         public IActionResult Authenticate([FromBody] AuthenticateRequest model)
         {
@@ -44,67 +52,55 @@ namespace hotelier.Controllers
             return Ok(users);
         }
 
-        // GET: api/User
-        [HttpGet("nonauth")]
-        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
+        // GET: api/User/signup
+        [AllowAnonymous]
+        [HttpPost("signup")]
+        public IActionResult Signup([FromBody] RegisterReq model)
         {
-            return await _context.Users.ToListAsync();
+            try
+            {
+                // create user
+                _userService.Create(model);
+                return Ok();
+            }
+            catch (AppException ex)
+            {
+                // return error message if there was an exception
+                return BadRequest(new { message = ex.Message });
+            }
         }
+
+        // // GET: api/User
+        // [HttpGet()]
+        // public IActionResult GetUsers()
+        // {
+        //    var users =  _userService.GetAll();
+        //    return Ok(users);
+        // }
 
         // GET: api/User/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetUser(int id)
+        public IActionResult GetUser(int id)
         {
-            var user = await _context.Users.FindAsync(id);
-
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            return user;
+            var user = _userService.GetById(id);
+            return Ok(user);
         }
 
         // PUT: api/User/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(int id, User user)
+        public IActionResult UpdateUser(int id, [FromBody]UserUpdateReq model)
         {
-            if (id != user.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(user).State = EntityState.Modified;
-
+            model.Id = id;
             try
             {
-                await _context.SaveChangesAsync();
+                _userService.Update(model);
+                return Ok();
             }
-            catch (DbUpdateConcurrencyException)
+            catch (AppException ex)
             {
-                if (!UserExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                // return error message if there was an exception
+                return BadRequest(new { message = ex.Message });
             }
-
-            return NoContent();
-        }
-
-        // POST: api/User
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<User>> PostUser([FromBody] User user)
-        {
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetUser", new { id = user.Id }, user);
         }
 
         // DELETE: api/User/5

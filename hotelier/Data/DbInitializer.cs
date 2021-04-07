@@ -1,14 +1,13 @@
 using hotelier.Models;
 using System;
 using System.Linq;
+using hotelier.Services;
 
 namespace hotelier.Data
 {
-
     public static class DbInitializer
     {
-
-        public static void Initialize(HotelierContext context)
+        public static void Initialize(HotelierContext context )
         {
             context.Database.EnsureCreated();
 
@@ -17,10 +16,13 @@ namespace hotelier.Data
             {
                 return; // Db has been seeded
             }
+            
+            byte[] passwordHash, passwordSalt;
+                UserService.StaticCreatePasswordHash("SamplePassword", out passwordHash, out passwordSalt);
               var users = new User[] {
-                new User{ Firstname="John",Lastname="Doe",Email="john@doe.com",Password="pa$$word!",Role="Administrator"},
-                new User{ Firstname="Mary",Lastname="Dane",Email="marry@jane.com",Password="pa$$word!",Role="User"},
-                new User{ Firstname="Albama",Lastname="Dranne",Email="albama@dranny.com",Password="pa$$word!",Role="User"}
+                new User{ Firstname="John",Lastname="Doe",Email="john@doe.com",PasswordHash=passwordHash, PasswordSalt=passwordSalt, Role="Administrator"},
+                new User{ Firstname="Mary",Lastname="Dane",Email="marry@jane.com",PasswordHash=passwordHash, PasswordSalt=passwordSalt, Role="User"},
+                new User{ Firstname="Albama",Lastname="Dranne",Email="albama@dranny.com", PasswordHash=passwordHash, PasswordSalt=passwordSalt, Role="User"}
             };
             foreach(User u in users) {
                 context.Add(u);
